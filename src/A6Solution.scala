@@ -1,0 +1,3 @@
+class A6Solution {
+
+}
