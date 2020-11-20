@@ -1,3 +1,5 @@
+import java.util.Objects
+
 /*
  * Mersim Rizmani - CS 474
  * Assignment 6 - Interpreter in new language of choice
@@ -12,12 +14,10 @@ class A6Solution {
     c.getClass.getSimpleName match {
       case "IntConstant" =>
         val cst: IntConstant = c.asInstanceOf[IntConstant]
-        val ret: IntValue = new IntValue(cst.c)
-        ret
+        new IntValue(cst.c)
       case "BooleanConstant" =>
         val cst: BooleanConstant = c.asInstanceOf[BooleanConstant]
-        val ret: BooleanValue = new BooleanValue(cst.c)
-        ret
+        new BooleanValue(cst.c)
       case "BinaryOperationExpression" =>
         val op: BinaryOperationExpression = c.asInstanceOf[BinaryOperationExpression]
         val leftValue: IntValue = evaluate(op.left).asInstanceOf[IntValue]
@@ -51,6 +51,8 @@ class A6Solution {
         else{
           evaluate(ife.elseSide)
         }
+      case "LetExpression" => null
+      case "VariableExpression" => null
       case _ => throw new Error("Unknown expression: " + c.getClass.getSimpleName)
     }
   }
@@ -145,6 +147,10 @@ class IfExpression(val condition: Expression, val thenSide: Expression, val else
 object Type extends Enumeration {type Type = Value; val EQ: Type.Value = Value}
 
 class ComparisonExpression(val t: Type.Type, val left: Expression, val right: Expression) extends Expression {}
+
+class LetExpression(val variable: Name, val value: Expression, val body: Expression) extends Expression {}
+
+class VariableExpression(val variable: Name) extends Expression {}
 /* ========================= EXPRESSION CLASSES END ================================== */
 
 /* ============================= VALUE CLASSES ====================================== */
@@ -153,5 +159,27 @@ abstract class Value {}
 class IntValue(val v: Int) extends Value { override def toString: String = "IntValue{" + "v=" + v + '}' }
 
 class BooleanValue(val b: Boolean) extends Value { override def toString: String = "BooleanValue{" + "b=" + b + '}' }
+
+class Name(val theName: String) {
+  override def toString: String = theName
+
+  override def equals(obj: Any): Boolean = {
+    if(this == obj){ return true }
+    if(obj == null || getClass != obj.getClass){ return false }
+    val name: Name = obj.asInstanceOf[Name]
+    Objects.equals(theName, name.theName)
+  }
+
+  override def hashCode(): Int = Objects.hash(theName)
+}
 /* ============================= VALUE CLASSES END ====================================== */
 
+/* ============================= ENVIRONMENT CLASSES ========================================== */
+class Binding(val name: Name, val value: Value) { override def toString: String = "{" + "name=" + name + ", value=" + value + '}' }
+
+class List {}
+
+abstract class Environment{}
+
+class LexicalScopedEnvironment() extends Environment {}
+/* ============================= ENVIRONMENT CLASSES END ========================================== */
